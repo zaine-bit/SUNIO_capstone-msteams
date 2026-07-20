@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.msteams.controller.AssignmentListController">
+    <top>
+        <VBox spacing="8">
+            <padding>
+                <Insets top="20" right="20" bottom="10" left="20"/>
+            </padding>
+            <Label text="Assignments" style="-fx-font-size: 20; -fx-font-weight: bold;"/>
+        </VBox>
+    </top>
+    <center>
+        <ListView fx:id="assignmentListView">
+            <BorderPane.margin>
+                <Insets top="0" right="20" bottom="10" left="20"/>
+            </BorderPane.margin>
+        </ListView>
+    </center>
+    <bottom>
+        <HBox spacing="10" alignment="CENTER">
+            <padding>
+                <Insets top="10" right="20" bottom="20" left="20"/>
+            </padding>
+            <Button text="Open Selected" onAction="#openSelected"/>
+            <Button text="Back" onAction="#goBack"/>
+        </HBox>
+    </bottom>
+</BorderPane>
