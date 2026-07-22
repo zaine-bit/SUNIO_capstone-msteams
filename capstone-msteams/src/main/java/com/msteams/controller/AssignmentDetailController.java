@@ -3,6 +3,7 @@ package com.msteams.controller;
 import com.msteams.model.Assignment;
 import com.msteams.model.Submission;
 import com.msteams.model.User;
+import com.msteams.service.ClassroomFacade;
 import com.msteams.service.DataStore;
 import com.msteams.service.FileSessionManager;
 import com.msteams.service.ISessionManager;
@@ -14,12 +15,8 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.time.LocalDate;
 
-/**
- * Implements the "Submit Assignment" flow from the sequence/activity diagrams:
- * display details -> check deadline -> attach file -> validate file -> save submission.
- */
+// Handles the Submit Assignment screen; validation/save logic now lives in ClassroomFacade.
 public class AssignmentDetailController {
 
     @FXML private Label titleLabel;
@@ -31,6 +28,7 @@ public class AssignmentDetailController {
     private Assignment assignment;
     private User currentUser;
     private final SubmissionDAO submissionDAO = new SubmissionDAO();
+    private final ClassroomFacade classroomFacade = new ClassroomFacade();
     private final ISessionManager sessionManager = new FileSessionManager();
 
     @FXML
@@ -50,26 +48,10 @@ public class AssignmentDetailController {
 
     @FXML
     private void handleSubmit() {
-        // Decision point 1: has the deadline passed?
-        if (LocalDate.now().isAfter(assignment.getDueDate())) {
-            statusLabel.setText("Submission closed: the deadline for this assignment has passed.");
-            return;
-        }
-
-        // Decision point 2: is the attached file valid (not blank)?
-        String fileName = fileField.getText();
-        if (fileName == null || fileName.isBlank()) {
-            statusLabel.setText("Please attach a file before submitting.");
-            return;
-        }
-
-        boolean success = submissionDAO.create(currentUser.getUserId(), assignment.getAssignmentId(), fileName);
-
-        if (success) {
-            statusLabel.setText("Submission successful! Your file \"" + fileName + "\" was submitted.");
+        ClassroomFacade.Result result = classroomFacade.submitAssignment(currentUser.getUserId(), assignment, fileField.getText());
+        statusLabel.setText(result.message);
+        if (result.success) {
             fileField.clear();
-        } else {
-            statusLabel.setText("Something went wrong saving your submission. Please try again.");
         }
     }
 

@@ -1,7 +1,5 @@
 package com.msteams.service;
 
-import com.msteams.model.Student;
-import com.msteams.model.Teacher;
 import com.msteams.model.User;
 
 import java.sql.*;
@@ -105,10 +103,6 @@ public class UserDAO {
         String password = rs.getString("password");
         String role = rs.getString("role");
 
-        if ("TEACHER".equals(role)) {
-            return new Teacher(id, name, email, password);
-        } else {
-            return new Student(id, name, email, password);
-        }
+        return UserFactory.createUser(id, name, email, password, role);
     }
 }

@@ -2,6 +2,7 @@ package com.msteams.controller;
 
 import com.msteams.model.Assignment;
 import com.msteams.model.Submission;
+import com.msteams.service.ClassroomFacade;
 import com.msteams.service.DataStore;
 import com.msteams.service.SubmissionDAO;
 import javafx.fxml.FXML;
@@ -12,10 +13,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-/**
- * Implements grading -- the UPDATE half of submissions CRUD, matching the
- * "gradeSubmission()" step from the combined sequence diagram.
- */
+// Handles grading; the actual grade validation/save now lives in ClassroomFacade.
 public class SubmissionsController {
 
     @FXML private Label assignmentTitleLabel;
@@ -25,6 +23,7 @@ public class SubmissionsController {
 
     private Assignment assignment;
     private final SubmissionDAO submissionDAO = new SubmissionDAO();
+    private final ClassroomFacade classroomFacade = new ClassroomFacade();
 
     @FXML
     public void initialize() {
@@ -53,17 +52,9 @@ public class SubmissionsController {
             return;
         }
 
-        double grade;
-        try {
-            grade = Double.parseDouble(gradeField.getText().trim());
-        } catch (NumberFormatException e) {
-            statusLabel.setText("Grade must be a number.");
-            return;
-        }
-
-        boolean success = submissionDAO.updateGrade(selected.getSubmissionId(), grade);
-        statusLabel.setText(success ? "Grade saved." : "Failed to save grade.");
-        if (success) {
+        ClassroomFacade.Result result = classroomFacade.gradeSubmission(selected.getSubmissionId(), gradeField.getText());
+        statusLabel.setText(result.message);
+        if (result.success) {
             refreshList();
         }
     }

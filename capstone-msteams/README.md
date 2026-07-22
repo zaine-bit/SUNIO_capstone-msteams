@@ -38,6 +38,24 @@ The session management feature described above is built around an interface call
 
 The concrete class FileSessionManager is what actually implements those methods using ObjectOutputStream and ObjectInputStream. Because the controllers depend on the abstraction rather than on FileSessionManager directly, the underlying session mechanism could be swapped out later, for example to store sessions in the database instead of a local file, and none of the controller code would need to change at all. That is the core benefit of the Dependency Inversion Principle: high level code (the controllers) does not depend on low level details (how a session is actually stored), it depends only on the interface describing what a session manager does.
 
+## Design Patterns Applied
+
+### Creational: Factory Method
+
+The class UserFactory is responsible for creating the correct type of User, either a Student or a Teacher, based on the role value stored in the database. UserDAO calls UserFactory.createUser(...) instead of deciding which subclass to build itself. The benefit is that the decision logic for "which subtype of User do I build" lives in exactly one place, so if a third role were ever added later, only UserFactory would need to change.
+
+### Structural: Facade
+
+The class ClassroomFacade sits in front of SubmissionDAO and hides the individual steps involved in submitting or grading an assignment, such as checking the deadline, checking that a file was attached, and checking that a grade is a valid number, behind two simple methods, submitAssignment(...) and gradeSubmission(...). AssignmentDetailController and SubmissionsController call these two methods instead of performing every validation step themselves. The benefit is that the controllers stay focused on the user interface, while ClassroomFacade owns the actual business rules in one place.
+
+### Behavioral: Strategy
+
+ISessionManager defines the "algorithm" for handling a user session (save, load, clear, check) as an interface, and FileSessionManager is one concrete strategy for doing that using serialization to a file. Every controller that needs session information depends only on the ISessionManager interface, not on FileSessionManager specifically. The benefit is that the session strategy could be swapped for a different implementation later without changing any controller code, since they only ever call the interface's methods.
+
+The updated class diagram showing these three classes, their stereotypes, and how they connect to the rest of the system is included as an image below.
+
+![Class diagram showing design patterns](class_diagram_design_patterns.png)
+
 ## Setup
 
 Start XAMPP and make sure MySQL is running. Open phpMyAdmin, create a database named msteams_db, and run the script found in sql/schema.sql from the SQL tab. Then open this project folder in IntelliJ, let it download the JavaFX and MySQL Maven dependencies, and run Main.java.
